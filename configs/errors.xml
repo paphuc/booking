@@ -1,0 +1,29 @@
+error:
+  success:
+    code: "01"
+    message: "OK"
+     
+  invalid_value:
+    request:
+      code: "102"
+      message: "System cannot process this request at the moment. Please try again later. (IVR)"
+    incorrect_password_email:
+      code: "202"
+      message: "Incorrect password or email address. Please try again. (IVIPE)"
+    email_exists:
+      code: "302"
+      message: "Email address is exists. Please try again with other email. (IVEE)"
+    failed_authentication:
+      code: "402"
+      message: "Failed to authentication user. (IVFA)"
+    validation_failed:
+      code: "502"
+      message: "Form validation errors.The request could not be understood by the server due to malformed syntax (IVVF)"
+  database:
+    database:
+      code: "103"
+      message: "System cannot process your request at the moment. Please try again later. (DBG)"
+
+    data_not_found:
+      code: "203"
+      message: "Data not found in database. (DBNF)"

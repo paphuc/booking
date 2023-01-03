@@ -1,0 +1,19 @@
+http_server:
+  addresses: ""
+  port: "8080"
+  read_timeout: 60s
+  write_timeout: 60s
+  read_header_timeout: 60s
+  shutdown_timeout: 60s
+
+database:
+  type: mongodb
+  mongo:
+    address: "booking1:012345678@cluster0.sudw4.mongodb.net/booking?retryWrites=true&w=majority"
+    timeout: 15s
+    username: ""
+    password: ""
+    database: "booking"
+
+jwt:
+  duration: 24h
