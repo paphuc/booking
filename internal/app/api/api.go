@@ -3,9 +3,13 @@ package api
 import (
 	"net/http"
 	"booking/configs"
+
 	memberhandler "booking/internal/app/api/handler/member"
+	memberServices "booking/internal/app/services/member"
+	memberRepository "booking/internal/app/repositories/member"
+
 	"booking/internal/app/db"
-	"booking/internal/app/member"
+
 	"booking/internal/pkg/glog"
 	"booking/internal/pkg/health"
 	"booking/internal/pkg/middleware"
@@ -39,7 +43,9 @@ const (
 // Init init all handlers
 func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error) {
 	logger := glog.New()
-	var memberRepo member.Repository
+
+	// declare variable to pointer service class
+	var memberRepo memberServices.Repository
 
 	switch conns.Database.Type {
 	case db.TypeMongoDB:
@@ -47,7 +53,7 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 		if err != nil {
 			logger.Panicf("failed to dial to target server, err: %v", err)
 		}
-		memberRepo = member.NewMongoRepository(s)
+		memberRepo = memberRepository.NewMongoRepository(s)
 		
 
 	default:
@@ -55,8 +61,8 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 	}
 
 	memberLogger := logger.WithField("package", "member")
-	memberSrv := member.NewService(memberRepo, memberLogger)
-	memberHandler := memberhandler.New(memberSrv, memberLogger)
+	memberSrv := memberServices.NewService(conns, &em, memberRepo, memberLogger)
+	memberHandler := memberhandler.New(conns, &em,memberSrv, memberLogger)
 
 	routes := []route{
 		// infra
@@ -66,10 +72,21 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 			handler: health.Readiness().ServeHTTP,
 		},
 		// services
+		// member
 		route{
 			path:    "/api/v1/member/{id:[a-z0-9-\\-]+}",
 			method:  get,
 			handler: memberHandler.Get,
+		},
+		route{
+			path: 	 "/api/v1/member",
+			method:  post,
+			handler: memberHandler.InsertMember,
+		},
+		route{
+			path: 	 "/api/v1/member",
+			method:  put,
+			handler: memberHandler.UpdateMemberByID,
 		},
 	}
 

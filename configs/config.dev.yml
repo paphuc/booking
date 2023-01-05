@@ -9,7 +9,7 @@ http_server:
 database:
   type: mongodb
   mongo:
-    address: "booking1:012345678@cluster0.sudw4.mongodb.net/booking?retryWrites=true&w=majority"
+    address: "booking:Booking123@cluster0.wt0qe36.mongodb.net/booking?retryWrites=true&w=majority"
     timeout: 15s
     username: ""
     password: ""
