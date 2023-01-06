@@ -24,7 +24,7 @@ type (
 		Databases db.Connections
 	}
 
-	middlewareFunc = func(http.HandlerFunc) http.HandlerFunc
+	middlewareFunc = func(http.HandlerFunc, *configs.ErrorMessage) http.HandlerFunc
 	route          struct {
 		path        string
 		method      string
@@ -73,19 +73,22 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 		// services
 		// member
 		route{
-			path:    "/api/v1/member/{id:[a-z0-9-\\-]+}",
-			method:  get,
-			handler: memberHandler.Get,
+			path:        "/api/v1/member/{id:[a-z0-9-\\-]+}",
+			method:      get,
+			middlewares: []middlewareFunc{middleware.Auth},
+			handler:     memberHandler.Get,
 		},
 		route{
-			path:    "/api/v1/member",
-			method:  post,
-			handler: memberHandler.InsertMember,
+			path:        "/api/v1/member",
+			method:      post,
+			middlewares: []middlewareFunc{middleware.Auth},
+			handler:     memberHandler.InsertMember,
 		},
 		route{
-			path:    "/api/v1/member",
-			method:  put,
-			handler: memberHandler.UpdateMemberByID,
+			path:        "/api/v1/member",
+			method:      put,
+			middlewares: []middlewareFunc{middleware.Auth},
+			handler:     memberHandler.UpdateMemberByID,
 		},
 		route{
 			path:    "/login",
@@ -104,7 +107,7 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 	for _, rt := range routes {
 		h := rt.handler
 		for _, mdw := range rt.middlewares {
-			h = mdw(h)
+			h = mdw(h, &em)
 		}
 		r.Path(rt.path).Methods(rt.method).HandlerFunc(h)
 	}
