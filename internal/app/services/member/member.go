@@ -44,11 +44,7 @@ func (s *Service) Get(ctx context.Context, id string) (*types.Member, error) {
 
 // Post basic
 func (s *Service) InsertMember(ctx context.Context, memreq types.MemberRequest) (*types.Member, error) {
-	if _, err := s.repo.FindByEmail(ctx, memreq.Email); err == nil {
-		s.logger.Errorf("Email email exits", err)
-		return nil, errors.Wrap(errors.New("Email email exits"), "Email exits, can't insert user")
-	}
-	memreq.Password, _ = jwt.HashPassword(memreq.Password)
+
 	user := types.Member{
 		ID:       primitive.NewObjectID(),
 		Name:     memreq.Name,
