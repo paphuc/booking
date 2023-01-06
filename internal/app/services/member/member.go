@@ -45,21 +45,21 @@ func (s *Service) Get(ctx context.Context, id string) (*types.Member, error) {
 // Post basic
 func (s *Service) InsertMember(ctx context.Context, memreq types.MemberRequest) (*types.Member, error) {
 
-	user := types.Member{
+	Member := types.Member{
 		ID:       primitive.NewObjectID(),
 		Name:     memreq.Name,
 		Password: memreq.Password,
 		Email:    memreq.Email,
 	}
 
-	err := s.repo.Insert(ctx, user)
+	err := s.repo.Insert(ctx, Member)
 	if err != nil {
 		s.logger.Errorf("Can't create member", err)
 		return nil, errors.Wrap(err, "Can't create member")
 	}
 
 	s.logger.Infof("Create succesfully!!!", memreq)
-	return &user, nil
+	return &Member, nil
 }
 
 // Put service update info for member by ID
@@ -75,32 +75,32 @@ func (s *Service) UpdateMemberByID(ctx context.Context, mem types.Member) error 
 	s.logger.Infof("Updated member is completed !!!")
 	return err
 }
-func (s *Service) Login(ctx context.Context, UserLogin types.UserLogin) (*types.UserResponseSignUp, error) {
+func (s *Service) Login(ctx context.Context, MemberLogin types.MemberLogin) (*types.MemberResponseSignUp, error) {
 
-	user, err := s.repo.FindByEmail(ctx, UserLogin.Email)
+	member, err := s.repo.FindByEmail(ctx, MemberLogin.Email)
 	if err != nil {
 		s.logger.Errorf("Not found email exits", err)
-		return nil, errors.Wrap(errors.New("Not found email exits"), "Email not exists, can't find user")
+		return nil, errors.Wrap(errors.New("Not found email exits"), "Email not exists, can't find Member")
 	}
 
-	if !jwt.IsCorrectPassword(UserLogin.Password, user.Password) {
-		s.logger.Errorf("Password incorrect", UserLogin.Email)
+	if !jwt.IsCorrectPassword(MemberLogin.Password, member.Password) {
+		s.logger.Errorf("Password incorrect", MemberLogin.Email)
 		return nil, errors.Wrap(errors.New("Password isn't like password from database"), "Password incorrect")
 	}
 
 	var tokenString string
-	tokenString, error := jwt.GenToken(types.UserFieldInToken{
-		ID:    user.ID,
-		Name:  user.Name,
-		Email: user.Email}, s.conf.Jwt.Duration)
+	tokenString, error := jwt.GenToken(types.MemberFieldInToken{
+		ID:    member.ID,
+		Name:  member.Name,
+		Email: member.Email}, s.conf.Jwt.Duration)
 
 	if error != nil {
 		s.logger.Errorf("Can not gen token", error)
 		return nil, errors.Wrap(error, "Can't gen token")
 	}
-	s.logger.Infof("Login completed ", user.Email)
-	return &types.UserResponseSignUp{
-		Name:  user.Name,
-		Email: user.Email,
+	s.logger.Infof("Login completed ", member.Email)
+	return &types.MemberResponseSignUp{
+		Name:  member.Name,
+		Email: member.Email,
 		Token: tokenString}, nil
 }
