@@ -19,7 +19,7 @@ type (
 		Get(ctx context.Context, id string) (*types.Member, error)
 		InsertMember(ctx context.Context, MemberRequest types.MemberRequest) (*types.Member, error)
 		UpdateMemberByID(ctx context.Context, Member types.Member) error
-		Login(ctx context.Context, UserLogin types.UserLogin) (*types.UserResponseSignUp, error)
+		Login(ctx context.Context, MemberLogin types.MemberLogin) (*types.MemberResponseSignUp, error)
 	}
 
 	// Handler is member web handler
@@ -106,24 +106,24 @@ func (h *Handler) UpdateMemberByID(w http.ResponseWriter, r *http.Request) {
 }
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
-	var UserLogin types.UserLogin
+	var MemberLogin types.MemberLogin
 
-	if err := json.NewDecoder(r.Body).Decode(&UserLogin); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&MemberLogin); err != nil {
 		respond.JSON(w, http.StatusBadRequest, h.em.InvalidValue.ValidationFailed)
 		return
 	}
 
-	if err := validate.Struct(UserLogin); err != nil {
-		h.logger.Errorf("Failed when validate field UserLogin", err)
+	if err := validate.Struct(MemberLogin); err != nil {
+		h.logger.Errorf("Failed when validate field MemberLogin", err)
 		respond.JSON(w, http.StatusBadRequest, h.em.InvalidValue.Request)
 		return
 	}
 
-	user, err := h.srv.Login(r.Context(), UserLogin)
+	member, err := h.srv.Login(r.Context(), MemberLogin)
 	if err != nil {
 		respond.JSON(w, http.StatusBadRequest, h.em.InvalidValue.IncorrectPasswordEmail)
 		return
 	}
 
-	respond.JSON(w, http.StatusOK, user)
+	respond.JSON(w, http.StatusOK, member)
 }

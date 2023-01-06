@@ -17,11 +17,11 @@ var (
 )
 
 // Generate token for login or sign up
-func GenToken(user types.UserFieldInToken, duration time.Duration) (string, error) {
+func GenToken(member types.MemberFieldInToken, duration time.Duration) (string, error) {
 	claims := &types.Claims{
-		ID:    user.ID,
-		Email: user.Email,
-		Name:  user.Name,
+		ID:    member.ID,
+		Email: member.Email,
+		Name:  member.Name,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(duration).Unix(),
 		},

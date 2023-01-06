@@ -20,23 +20,23 @@ type MemberResponse struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
-type UserSignUp struct {
+type MemberSignUp struct {
 	Name     string `json:"name" validate:"required,max=60"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,gte=8"`
 }
-type UserFieldInToken struct {
+type MemberFieldInToken struct {
 	ID    primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
 	Name  string             `json:"name"`
 	Email string             `json:"email"`
 }
-type UserResponseSignUp struct {
+type MemberResponseSignUp struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	Token string `json:"token"`
 }
 
-type UserLogin struct {
+type MemberLogin struct {
 	Email    string `json:"email" bson:"email" validate:"required,email"`
 	Password string `json:"password" bson:"password" validate:"required"`
 }
