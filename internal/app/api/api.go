@@ -1,12 +1,12 @@
 package api
 
 import (
-	"net/http"
 	"booking/configs"
+	"net/http"
 
 	memberhandler "booking/internal/app/api/handler/member"
-	memberServices "booking/internal/app/services/member"
 	memberRepository "booking/internal/app/repositories/member"
+	memberServices "booking/internal/app/services/member"
 
 	"booking/internal/app/db"
 
@@ -54,7 +54,6 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 			logger.Panicf("failed to dial to target server, err: %v", err)
 		}
 		memberRepo = memberRepository.NewMongoRepository(s)
-		
 
 	default:
 		panic("database type not supported: " + conns.Database.Type)
@@ -62,7 +61,7 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 
 	memberLogger := logger.WithField("package", "member")
 	memberSrv := memberServices.NewService(conns, &em, memberRepo, memberLogger)
-	memberHandler := memberhandler.New(conns, &em,memberSrv, memberLogger)
+	memberHandler := memberhandler.New(conns, &em, memberSrv, memberLogger)
 
 	routes := []route{
 		// infra
@@ -79,14 +78,19 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 			handler: memberHandler.Get,
 		},
 		route{
-			path: 	 "/api/v1/member",
+			path:    "/api/v1/member",
 			method:  post,
 			handler: memberHandler.InsertMember,
 		},
 		route{
-			path: 	 "/api/v1/member",
+			path:    "/api/v1/member",
 			method:  put,
 			handler: memberHandler.UpdateMemberByID,
+		},
+		route{
+			path:    "/login",
+			method:  post,
+			handler: memberHandler.Login,
 		},
 	}
 
