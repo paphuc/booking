@@ -42,9 +42,9 @@ func (r *MongoRepository) Insert(ctx context.Context, member types.Member) error
 // Update Member by using ID
 func (r *MongoRepository) UpdateMemberByID(ctx context.Context, member types.Member) error {
 	updatedMember := bson.M{"$set": bson.M{
-		"name":			member.Name,
-		"password":     member.Password,
-		"email":		member.Email,
+		"name":     member.Name,
+		"password": member.Password,
+		"email":    member.Email,
 	}}
 	_, err := r.collection().UpdateByID(ctx, member.ID, updatedMember)
 	return err
@@ -52,4 +52,9 @@ func (r *MongoRepository) UpdateMemberByID(ctx context.Context, member types.Mem
 
 func (r *MongoRepository) collection() *mongo.Collection {
 	return r.client.Database("booking").Collection("members")
+}
+func (r *MongoRepository) FindByEmail(ctx context.Context, email string) (*types.Member, error) {
+	var user *types.Member
+	err := r.collection().FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	return user, err
 }
