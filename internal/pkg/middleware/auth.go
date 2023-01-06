@@ -3,13 +3,13 @@ package middleware
 import (
 	"net/http"
 
-	"booking/internal/app/config"
+	"booking/configs"
 	"booking/internal/pkg/auth"
 	"booking/internal/pkg/glog"
 	"booking/internal/pkg/respond"
 )
 
-func Auth(h http.HandlerFunc, em *config.ErrorMessage) http.HandlerFunc {
+func Auth(h http.HandlerFunc, em *configs.ErrorMessage) http.HandlerFunc {
 	logger := glog.New().WithField("package", "middleware")
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
