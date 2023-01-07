@@ -9,13 +9,14 @@ import (
 
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	// "fmt"
 )
 
 // Repository is an interface of a member repository
 type Repository interface {
 	FindByID(ctx context.Context, id string) (*types.Member, error)
 	Insert(ctx context.Context, Member types.Member) error
-	UpdateMemberByID(ctx context.Context, Member types.Member) error
+	UpdateMemberByID(ctx context.Context, UpdateMemberRequest types.UpdateMemberRequest) error
 	FindByEmail(ctx context.Context, email string) (*types.Member, error)
 }
 
@@ -45,6 +46,15 @@ func (s *Service) Get(ctx context.Context, id string) (*types.Member, error) {
 // Post basic
 func (s *Service) InsertMember(ctx context.Context, memreq types.MemberRequest) (*types.Member, error) {
 
+	// Check email if member is registered
+	if _,err := s.repo.FindByEmail(ctx,memreq.Email); err != nil {
+		s.logger.Errorf("Email is existed !!!", err)
+		return nil , errors.Wrap(err, "Email existed, can't insert member")
+	}
+
+	// Password encryption
+	memreq.Password, _ = jwt.HashPassword(memreq.Password)
+
 	Member := types.Member{
 		ID:       primitive.NewObjectID(),
 		Name:     memreq.Name,
@@ -63,7 +73,16 @@ func (s *Service) InsertMember(ctx context.Context, memreq types.MemberRequest) 
 }
 
 // Put service update info for member by ID
-func (s *Service) UpdateMemberByID(ctx context.Context, mem types.Member) error {
+func (s *Service) UpdateMemberByID(ctx context.Context, mem types.UpdateMemberRequest) error {
+
+	// Check member is existed or not by ID
+	if _,err := s.repo.FindByID(ctx,mem.ID); err != nil {
+		s.logger.Errorf("Member is not existed !!!", err)
+		return errors.Wrap(err, "Member existed, can't update member")
+	}
+
+	// Password encryption
+	mem.Password, _ = jwt.HashPassword(mem.Password)
 
 	err := s.repo.UpdateMemberByID(ctx, mem)
 
@@ -75,6 +94,7 @@ func (s *Service) UpdateMemberByID(ctx context.Context, mem types.Member) error 
 	s.logger.Infof("Updated member is completed !!!")
 	return err
 }
+
 func (s *Service) Login(ctx context.Context, MemberLogin types.MemberLogin) (*types.MemberResponseSignUp, error) {
 
 	member, err := s.repo.FindByEmail(ctx, MemberLogin.Email)

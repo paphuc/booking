@@ -16,20 +16,29 @@ type MemberRequest struct {
 	Email    string `json:"email" validate:"required,email"`
 }
 
+type UpdateMemberRequest struct {
+	ID       string 			`json:"_id" bson:"_id,omitempty" validate:"required"`
+	// Name     string 			`json:"name" bson:"name" validate:"omitempty,max=60"`
+	Password string             `json:"password" bson:"password" validate:"required"` 
+}
+
 type MemberResponse struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
+
 type MemberSignUp struct {
 	Name     string `json:"name" validate:"required,max=60"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,gte=8"`
 }
+
 type MemberFieldInToken struct {
 	ID    primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
 	Name  string             `json:"name"`
 	Email string             `json:"email"`
 }
+
 type MemberResponseSignUp struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
