@@ -18,7 +18,7 @@ type (
 	service interface {
 		Get(ctx context.Context, id string) (*types.Member, error)
 		InsertMember(ctx context.Context, MemberRequest types.MemberRequest) (*types.Member, error)
-		UpdateMemberByID(ctx context.Context, Member types.Member) error
+		UpdateMemberByID(ctx context.Context, Member types.UpdateMemberRequest) error
 		Login(ctx context.Context, MemberLogin types.MemberLogin) (*types.MemberResponseSignUp, error)
 	}
 
@@ -83,7 +83,7 @@ func (h *Handler) InsertMember(w http.ResponseWriter, r *http.Request) {
 // Put hanlder update member HTTP request
 func (h *Handler) UpdateMemberByID(w http.ResponseWriter, r *http.Request) {
 
-	var member types.Member
+	var member types.UpdateMemberRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&member); err != nil {
 		h.logger.Errorf("Failed when validate field in method UpdateMemberByID", err)
