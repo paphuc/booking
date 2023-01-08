@@ -104,6 +104,7 @@ func (h *Handler) UpdateMemberByID(w http.ResponseWriter, r *http.Request) {
 
 	respond.JSON(w, http.StatusOK, h.em.Success)
 }
+
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	var MemberLogin types.MemberLogin

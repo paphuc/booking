@@ -5,8 +5,12 @@ import (
 	"net/http"
 
 	memberhandler "booking/internal/app/api/handler/member"
-	memberRepository "booking/internal/app/repositories/member"
 	memberServices "booking/internal/app/services/member"
+	memberRepository "booking/internal/app/repositories/member"
+
+	tablehandler "booking/internal/app/api/handler/table"
+	tableServices "booking/internal/app/services/table"
+	tableRepository "booking/internal/app/repositories/table"
 
 	"booking/internal/app/db"
 
@@ -44,8 +48,9 @@ const (
 func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error) {
 	logger := glog.New()
 
-	// declare variable to pointer service class
+	// declare variable to pointer repository class
 	var memberRepo memberServices.Repository
+	var tableRepo tableServices.Repository
 
 	switch conns.Database.Type {
 	case db.TypeMongoDB:
@@ -54,6 +59,7 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 			logger.Panicf("failed to dial to target server, err: %v", err)
 		}
 		memberRepo = memberRepository.NewMongoRepository(s)
+		tableRepo = tableRepository.NewMongoRepository(s)
 
 	default:
 		panic("database type not supported: " + conns.Database.Type)
@@ -63,6 +69,10 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 	memberSrv := memberServices.NewService(conns, &em, memberRepo, memberLogger)
 	memberHandler := memberhandler.New(conns, &em, memberSrv, memberLogger)
 
+	tableLogger := logger.WithField("package", "table")
+	tableSrv := tableServices.NewService(conns, &em, tableRepo, tableLogger)
+	tableHandler := tablehandler.New(conns, &em, tableSrv, tableLogger)
+
 	routes := []route{
 		// infra
 		route{
@@ -71,7 +81,7 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 			handler: health.Readiness().ServeHTTP,
 		},
 		// services
-		// member
+		// api member
 		route{
 			path:        "/api/v1/member/{id:[a-z0-9-\\-]+}",
 			method:      get,
@@ -90,6 +100,26 @@ func Init(conns *configs.Configs, em configs.ErrorMessage) (http.Handler, error)
 			middlewares: []middlewareFunc{middleware.Auth},
 			handler:     memberHandler.UpdateMemberByID,
 		},
+		// api table
+		route{
+			path:        "/api/v1/table",
+			method:      post,
+			middlewares: []middlewareFunc{middleware.Auth},
+			handler:     tableHandler.InsertTable,
+		},
+		route{
+			path:        "/api/v1/table",
+			method:      put,
+			middlewares: []middlewareFunc{middleware.Auth},
+			handler:     tableHandler.UpdateTableByID,
+		},
+		route{
+			path:        "/api/v1/table-delete",
+			method:      put,
+			middlewares: []middlewareFunc{middleware.Auth},
+			handler:     tableHandler.DeleteTable,
+		},
+		// api login
 		route{
 			path:    "/login",
 			method:  post,
