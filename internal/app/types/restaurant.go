@@ -9,4 +9,5 @@ type Restaurant struct {
 	Address string 		     `json:"address" bson:"address" validate:"omitempty,address"`
 	// numberOfTable int 		 `json:"number_of_table bson:"number_of_table" validate:"required"`
 	// Table []TableInRestaurant ``
+	DelFlg bool 			 `json:"del_flg" bson:"del_flg" validate:"required" `
 }
